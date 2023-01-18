@@ -21,11 +21,23 @@ pg.display.update()
 
 class Car():
     def __init__(self, winParent):
-        pass
+        self.winParent = winParent
+        self.image = pg.image.load('images/carmf.png')
+        self.x = 400
+        self.y = 650
+        self.hspeed = 0
 
+    def draw(self):
+        self.winParent.fill((135, 255, 135))
+        self.winParent.blit(self.image, (self.x, self.y))
+        pg.display.flip()
+
+car = Car(screen)
 # Game Loop
 running = True
 while running:
+    car.draw()
+    car.x += car.hspeed
     for event in pg.event.get():
         if event.type == QUIT:
             running = False
@@ -33,6 +45,11 @@ while running:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
+
+            if event.key == K_LEFT:
+                car.hspeed = -2
+            elif event.key == K_RIGHT:
+                car.hspeed = 2
 
             if funnycolor == 0 and event.key == K_h:
                 funnycolor = 1
@@ -49,3 +66,8 @@ while running:
                 funnycolor = 0
             else:
                 funnycolor = 0
+
+        if event.type == pg.KEYUP:
+            if event.key == K_LEFT or event.key == K_RIGHT:
+                car.hspeed = 0
+    pg.display.update()
