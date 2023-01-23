@@ -7,7 +7,7 @@ curBG = 0
 
 # Window Size
 winWidth = 800
-winHeight = 80
+winHeight = 800
 winSize = (winWidth, winHeight)
 screen = pg.display.set_mode(winSize)
 
