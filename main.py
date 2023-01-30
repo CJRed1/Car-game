@@ -16,18 +16,6 @@ screen = pg.display.set_mode(winSize)
 pg.display.set_caption("wow")
 pg.display.set_icon(pg.image.load('images/macrin.png'))
 
-# BG
-screen.fill((135, 255, 135))
-
-pg.draw.ellipse(screen, (50, 200, 50), (winWidth/4-25, -winHeight, winWidth/2+50, winHeight*3))
-pg.draw.rect(screen, (75, 75, 75), (winWidth/4, 0, winWidth/2, winHeight))
-
-pg.draw.line(screen, (255, 255, 255), (winWidth/4+10, 0), (winWidth/4+10, winHeight), 10)
-pg.draw.line(screen, (255, 255, 255), (winWidth*0.75-12, 0), (winWidth*0.75-12, winHeight), 10)
-pg.draw.line(screen, (255, 213, 0), (winWidth/2-5, 0), (winWidth/2-5, winHeight), 10)
-
-pg.display.update()
-
 # Cars
 playerSprite = pg.image.load('images/carmf.png')
 playerSpriteCnt = playerSprite.get_rect()
@@ -56,9 +44,28 @@ while running:
             if event.key == K_ESCAPE:
                 running = False
 
+            if event.key in [K_LEFT, K_a] and playerSpriteCnt.x > winWidth/4:
+                playerSpriteCnt = playerSpriteCnt.move(-winWidth/4, 0)
+
+            if event.key in [K_RIGHT, K_d] and playerSpriteCnt.x < winWidth*0.75:
+                playerSpriteCnt = playerSpriteCnt.move(winWidth/4, 0)
+
+    if playerSpriteCnt.x < winWidth/4 or playerSpriteCnt.x > winWidth*0.75:
+        playerSpriteCnt.y += 2
+    if playerSpriteCnt.y >= winHeight*0.65:
+        playerSpriteCnt.y -= 1
+    # BG
+    screen.fill((135, 255, 135))
+
+    pg.draw.ellipse(screen, (50, 200, 50), (winWidth/4-25, -winHeight, winWidth/2+50, winHeight*3))
+    pg.draw.rect(screen, (75, 75, 75), (winWidth/4, 0, winWidth/2, winHeight))
+
+    pg.draw.line(screen, (255, 255, 255), (winWidth/4+10, 0), (winWidth/4+10, winHeight), 10)
+    pg.draw.line(screen, (255, 255, 255), (winWidth*0.75-12, 0), (winWidth*0.75-12, winHeight), 10)
+    pg.draw.line(screen, (255, 213, 0), (winWidth/2-5, 0), (winWidth/2-5, winHeight), 10)
+
     # Car Drawing
     screen.blit(playerSprite, playerSpriteCnt)
-    
     screen.blit(carSprite0, carSpriteCnt0)
     screen.blit(carSprite1, carSpriteCnt1)
     screen.blit(carSprite2, carSpriteCnt2)
