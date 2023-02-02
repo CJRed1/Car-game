@@ -2,9 +2,14 @@ import pygame as pg
 from pygame.locals import *
 import random as rd
 pg.init()
+pg.mixer.init()
 
-funnycolor = 0
-curBG = 0
+dt = 0
+clock = pg.time.Clock()
+
+# garfield music
+garmusic = pg.mixer.music.load('sounds/garmusic.ogg')
+pg.mixer.music.set_volume(1)
 
 # Window Size
 winWidth = 800
@@ -16,26 +21,72 @@ screen = pg.display.set_mode(winSize)
 pg.display.set_caption("wow")
 pg.display.set_icon(pg.image.load('images/macrin.png'))
 
+# a tree
+treeList = []
+treeXYList = []
+for i in range(0, 10):
+    tree = pg.image.load(f'images/tree.png')
+    treeXY = tree.get_rect()
+    treeXY.center = winWidth/8, 200 * i
+    if i > 4:
+        treeXY.center = winWidth*0.875, 200 * (i-6)
+    treeList.insert(i, tree)
+    treeXYList.insert(i, treeXY)
+
 # Cars
-playerSprite = pg.image.load('images/carmf.png')
-playerSpriteCnt = playerSprite.get_rect()
-playerSpriteCnt.center = winWidth/2 + winWidth/8, winHeight*0.75
+player = pg.image.load('images/carmf.png')
+playerXY = player.get_rect()
+playerXY.center = winWidth/2 + winWidth/8, winHeight*0.75
 
-carSprite0 = pg.image.load(f'images/carbad-0.png')
-carSpriteCnt0 = carSprite0.get_rect()
-carSpriteCnt0.center = winWidth/2 - winWidth/8 + rd.randint(-10, 20), winHeight*0.75 + rd.randint(-50, 50)
+car0 = pg.image.load(f'images/carbad-0.png')
+carXY0 = car0.get_rect()
+carXY0.center = winWidth/2 - winWidth/8, -250
 
-carSprite1 = pg.image.load(f'images/carbad-1.png')
-carSpriteCnt1 = carSprite0.get_rect()
-carSpriteCnt1.center = winWidth/2 - winWidth/8 + rd.randint(-20, 10), winHeight*0.25 + rd.randint(-40, 60)
+car1 = pg.image.load(f'images/carbad-1.png')
+carXY1 = car0.get_rect()
+carXY1.center = winWidth/2 + winWidth/8, -750
 
-carSprite2 = pg.image.load(f'images/carbad-2.png')
-carSpriteCnt2 = carSprite0.get_rect()
-carSpriteCnt2.center = winWidth/2 + winWidth/8 + rd.randint(-15, 15), winHeight*0.25 + rd.randint(-60, 40)
+garcar = pg.image.load(f'images/garcar.png')
+garcarXY = garcar.get_rect()
+garcarXY.center = winWidth/2 - winWidth/8, -1750
+
+santiago = pg.image.load(f'images/santiago.png')
+santiagoXY = santiago.get_rect()
+santiagoXY.center = winWidth/2 + winWidth/8, -2750
 
 # Game Loop
 running = True
 while running:
+    
+    # tree movement
+    for i in range(0, 10):
+        treeXYList[i].y += 1 * dt/2
+
+        if treeXYList[i].y > winHeight:
+            treeXYList[i].y = -200      
+
+    # Enemy Car Movement
+    carXY0.y += 1 * dt/2
+    carXY1.y += 1 * dt/2
+    garcarXY.y += 1 * dt/2
+    santiagoXY.y += 1 * dt/2
+
+    if carXY0.y > winHeight + 150:
+        carXY0.y = -rd.randint(250, 1050)
+
+    if carXY1.y > winHeight + 150:
+        carXY1.y = -rd.randint(250, 1050)
+
+    if garcarXY.y > -150 and garcarXY.y < -130 :
+        pg.mixer.music.play(-1, 4)
+    
+    if garcarXY.y > winHeight + 150:
+        garcarXY.y = -rd.randint(750, 1750)
+        pg.mixer.music.stop()
+
+    if santiagoXY.y > winHeight + 150:
+        santiagoXY.y = -rd.randint(1750, 2750)
+
     for event in pg.event.get():
         if event.type == QUIT:
             running = False
@@ -44,16 +95,21 @@ while running:
             if event.key == K_ESCAPE:
                 running = False
 
-            if event.key in [K_LEFT, K_a] and playerSpriteCnt.x > winWidth/4:
-                playerSpriteCnt = playerSpriteCnt.move(-winWidth/4, 0)
+            if event.key in [K_LEFT, K_a] and playerXY.x > winWidth/4:
+                playerXY = playerXY.move(-winWidth/4, 0)
 
-            if event.key in [K_RIGHT, K_d] and playerSpriteCnt.x < winWidth*0.75:
-                playerSpriteCnt = playerSpriteCnt.move(winWidth/4, 0)
+            if event.key in [K_RIGHT, K_d] and playerXY.x < winWidth*0.75:
+                playerXY = playerXY.move(winWidth/4, 0)
 
-    if playerSpriteCnt.x < winWidth/4 or playerSpriteCnt.x > winWidth*0.75:
-        playerSpriteCnt.y += 2
-    if playerSpriteCnt.y >= winHeight*0.65:
-        playerSpriteCnt.y -= 1
+            if event.key == K_SPACE and (playerXY.x < winWidth/4 or playerXY.x > winWidth*0.75):
+                playerXY.y -= 2 * dt/2
+
+    # my man deaccelerating
+    if playerXY.x < winWidth/4 or playerXY.x > winWidth*0.75:
+        playerXY.y += 1 * dt/2
+    if playerXY.y >= winHeight*0.65:
+        playerXY.y -= 1 * dt/4
+    
     # BG
     screen.fill((135, 255, 135))
 
@@ -65,9 +121,13 @@ while running:
     pg.draw.line(screen, (255, 213, 0), (winWidth/2-5, 0), (winWidth/2-5, winHeight), 10)
 
     # Car Drawing
-    screen.blit(playerSprite, playerSpriteCnt)
-    screen.blit(carSprite0, carSpriteCnt0)
-    screen.blit(carSprite1, carSpriteCnt1)
-    screen.blit(carSprite2, carSpriteCnt2)
+    screen.blit(player, playerXY)
+    screen.blit(car0, carXY0)
+    screen.blit(car1, carXY1)
+    screen.blit(garcar, garcarXY)
+    screen.blit(santiago, santiagoXY)
+    for i in range(0, 10):
+        screen.blit(treeList[i], treeXYList[i])
 
     pg.display.flip()
+    dt = clock.tick(60)
