@@ -87,6 +87,12 @@ while running:
     if santiagoXY.y > winHeight + 150:
         santiagoXY.y = -rd.randint(1750, 2750)
 
+    carList = [carXY0, carXY1, garcarXY, santiagoXY]
+    for i in range(3):
+        if playerXY.x == carList[i].x and carList[i].y > playerXY.y - 64:
+            print('you ded mf')
+            running = False
+
     for event in pg.event.get():
         if event.type == QUIT:
             running = False
